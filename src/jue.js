@@ -86,6 +86,21 @@ class JueElement {
         }
         return this;
     }
+    /**
+     * 获取或设置属性
+     * @param {*} attrs 
+     */
+    attr(attrs) {
+        // 批量设置属性
+        if (typeof (attrs) === "object") {
+            for (let key in attrs) {
+                this.Element.setAttribute(key, attrs[key]);
+            }
+            return this;
+        }
+        // 返回属性值
+        return this.Element.getAttribute(attrs);
+    }
 }
 
 /**
@@ -145,6 +160,34 @@ class JueBody extends JueContainerElement {
     } else {
         window.$ = jue;
     }
+    // 获取数据
+    let getData = async function (response) {
+        // 判断返回状态
+        if (response.status !== 200) {
+            $.raise("fetch_fail", response);
+            return undefined;
+        }
+        // 解析内容
+        let res = await response.json();
+        if (!res.success) {
+            if (typeof onFail === "function") {
+                onFail(res.message);
+            } else {
+                this.raise(EventTypes.API_FAIL, res.message);
+            }
+            return null;
+        }
+        return res.data;
+    }
+    // 网络访问
+    $.get = async function (url, headers) {
+        let response = await fetch(url, {
+            method: "GET",
+            headers: headers,
+            mode: 'cors',
+        });
+        return await getData(response);
+    }
     // uuid
     $.uuid = function () {
         let s = [];
@@ -164,7 +207,7 @@ class JueBody extends JueContainerElement {
     // 定义所有事件
     let events = {};
     // 触发事件
-    $.raise = function (name) {
+    $.raise = function (name, args) {
         if (typeof (events[name]) === "undefined") return;
         // 读取列表
         let list = events[name];
@@ -172,7 +215,7 @@ class JueBody extends JueContainerElement {
             let fn = list[i];
             if (typeof (fn) !== "function") continue;
             try {
-                fn();
+                fn(args);
             } catch (ex) {
                 console.error(ex);
             }
