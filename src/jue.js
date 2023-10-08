@@ -1,3 +1,233 @@
+// 助手
+let JueHelper = {};
+
+// uuid
+JueHelper.uuid = function () {
+    let s = [];
+    var keys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
+    for (var i = 0; i < 32; i++) {
+        s.push(keys[parseInt(Math.random() * keys.length)]);
+    }
+    var uuid = s.join("");
+    return uuid;
+}
+
+/**
+ * Jue虚拟元素
+ */
+class JueVirtualElement {
+    /**
+     * 元素名称
+     * @param {String} name 
+     */
+    constructor(name) {
+        this.Id = JueHelper.uuid();
+        this.Name = name;
+        this.Styles = {};
+        this.Attributes = {};
+        this.Content = undefined;
+        this.ParentElementId = undefined;
+    }
+    /**
+     * 设置父元素
+     * @param {JueVirtualElement} element 
+     */
+    setParent(element) {
+        this.ParentElementId = element.Id;
+    }
+    /**
+     * 创建元素视图
+     */
+    createView() {
+        return new JueElementView(this);
+    }
+    /**
+     * 设置样式
+     * @returns {JueElement}
+     */
+    css(styles) {
+        if (typeof (styles) === "undefined") return;
+        for (let key in styles) {
+            this.Styles[key] = styles[key];
+        }
+        return this;
+    }
+    /**
+     * 设置属性
+     * @param {*} attrs 
+     */
+    attr(attrs) {
+        for (let key in attrs) {
+            this.Attributes[key] = attrs[key];
+        }
+        return this;
+    }
+}
+
+/**
+ * Jue元素视图
+ */
+class JueElementView {
+    /**
+     * Jue视图
+     * @param {JueVirtualElement} virtualElement 
+     */
+    constructor(virtualElement) {
+        this.Element = document.createElement(virtualElement.Name);
+        // 复制属性
+        this.Id = virtualElement.Id;
+        this.ParentElementId = virtualElement.ParentElementId;
+        this.Content = virtualElement.Content;
+        // 复制样式
+        this.Styles = {};
+        for (let key in virtualElement.Styles) {
+            this.Styles[key] = virtualElement.Styles[key];
+        }
+        // 复制属性
+        this.Attributes = {};
+        for (let key in virtualElement.Attributes) {
+            this.Attributes[key] = virtualElement.Attributes[key];
+        }
+    }
+    /**
+     * 绑定
+     * @param {HTMLElement} element 
+     */
+    bind(element) {
+        if (typeof (this.ParentElement) !== "undefined") throw "视图已有绑定对象";
+        this.ParentElement = element;
+        this.ParentElement.appendChild(this.Element);
+    }
+    /**
+     * 呈现
+     */
+    render() {
+        if (typeof (this.ParentElement) === "undefined") return;
+        // 生效所有的样式
+        for (let key in this.Styles) {
+            this.Element.style[key] = this.Styles[key];
+        }
+        // 生效所有的属性
+        for (let key in this.Attributes) {
+            this.Element.setAttribute(key, this.Attributes[key]);
+        }
+        // 生效内容
+        if (typeof (this.Content) !== "undefined") {
+            this.Element.innerHTML = this.Content;
+        }
+    }
+    /**
+     * 解绑
+     */
+    unbind() {
+        if (typeof (this.ParentElement) === "undefined") return;
+        this.ParentElement.removeChild(this.Element);
+        this.ParentElement = undefined;
+    }
+}
+
+/**
+ * Jue组件
+ */
+class JueCompnent {
+    /**
+     * 组件名称
+     * @param {String} name 
+     */
+    constructor(name) {
+        this.Name = name;
+        this.Elements = [];
+    }
+    /**
+     * 创建元素视图
+     * @param {HTMLElement} element 
+     */
+    createView(element) {
+        return new JueCompnentView(element, this);
+    }
+    /**
+     * 创建元素
+     * @param {String} name 
+     */
+    createElement(name) {
+        let ele = new JueVirtualElement(name);
+        this.Elements.push(ele);
+        return ele;
+    }
+}
+
+/**
+ * Jue组件视图
+ */
+class JueCompnentView {
+    /**
+     * 组件名称
+     * @param {HTMLElement} element 
+     * @param {JueCompnent} compnent 
+     */
+    constructor(element, compnent) {
+        this.Element = element;
+        this.Compnent = compnent;
+        this.Views = [];
+        for (let i = 0; i < this.Compnent.Elements.length; i++) {
+            let ele = this.Compnent.Elements[i];
+            // 创建新视图
+            let view = ele.createView();
+            this.Views.push(view);
+            // 绑定子视图
+            if (typeof (ele.ParentElementId) !== "undefined") {
+                let parentView = this.getViewById(ele.ParentElementId);
+                if (typeof (parentView) !== "undefined") {
+                    //parentView.Element.appendChild(view.Element);
+                    view.bind(parentView.Element);
+                }
+            }
+        }
+    }
+    /**
+     * 根据Id获取相关视图
+     * @param {String} id 
+     * @returns 
+     */
+    getViewById(id) {
+        for (let i = 0; i < this.Views.length; i++) {
+            let view = this.Views[i];
+            if (view.Id === id) return view;
+        }
+        return undefined;
+    }
+    /**
+     * 呈现
+     * @param {HTMLElement} element 
+     */
+    render() {
+        // 将所有顶层视图附加到关联元素中
+        for (let i = 0; i < this.Views.length; i++) {
+            let view = this.Views[i];
+            // 绑定子视图
+            if (typeof (view.ParentElementId) === "undefined") {
+                view.bind(this.Element);
+                //this.Element.appendChild(view.Element);
+            }
+            // 呈现视图
+            view.render();
+        }
+    }
+    /**
+     * 销毁
+     */
+    destroy() {
+        // 将所有顶层视图附加到关联元素中
+        for (let i = 0; i < this.Views.length; i++) {
+            let view = this.Views[i];
+            // 绑定子视图
+            if (typeof (ele.ParentElementId) === "undefined") {
+                this.Element.removeChild(view.Element);
+            }
+        }
+    }
+}
+
 /**
  * Jue样式集合
  */
@@ -143,6 +373,18 @@ class JueBody extends JueContainerElement {
     }
 }
 
+/**
+ * Jue头部
+ */
+class JueHeader extends JueContainerElement {
+    /**
+     * 构造函数
+     */
+    constructor() {
+        super(document.head)
+    }
+}
+
 // 封装对象
 (function () {
     // 注册对象
@@ -170,11 +412,7 @@ class JueBody extends JueContainerElement {
         // 解析内容
         let res = await response.json();
         if (!res.success) {
-            if (typeof onFail === "function") {
-                onFail(res.message);
-            } else {
-                this.raise(EventTypes.API_FAIL, res.message);
-            }
+            this.raise("fetch_fail", res.message);
             return null;
         }
         return res.data;
@@ -204,6 +442,8 @@ class JueBody extends JueContainerElement {
     $.element = function (name) {
         return eles[name];
     }
+    // 注册所有组件
+    $.compnents = [];
     // 定义所有事件
     let events = {};
     // 触发事件
@@ -235,6 +475,19 @@ class JueBody extends JueContainerElement {
     $.ready = function (fn) { $.event("ready", fn); }
     // 添加入口函数
     $.event("initialize", function () {
+        // 建立一个Demo组件并生效
+        let demo = new JueCompnent("demo");
+        let demoDiv = demo.createElement("div");
+        console.log("demoDiv: " + demoDiv.Id);
+        let demoDiv2 = demo.createElement("div");
+        demoDiv2.setParent(demoDiv);
+        demoDiv2.css({ fontSize: "14px" });
+        //demoDiv2.Content = "Demo";
+        let demoDiv3 = demo.createElement("div");
+        demoDiv3.setParent(demoDiv2);
+        demoDiv3.css({ color: "#fff" });
+        demoDiv3.Content = "Demo";
+        demo.createView(document.body).render();
         // 封装函数
         $.Body = new JueBody();
         // 标准提示框

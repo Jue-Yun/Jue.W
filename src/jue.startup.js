@@ -35,11 +35,13 @@ $.ready(async function () {
     $.notice(cfg.url);
     // 执行提示优化脚本
     $.start("notice/startup.js");
-    // 获取服务器配置
-    let res = await $.get(cfg.url + "/juew/configure", {
-        "Juew-Web-Protocol": window.location.protocol,
-        "Juew-Web-Host": window.location.host,
-        "Juew-Server-Host": cfg.host,
-        "Juew-Server-Url": cfg.url,
-    });
+    // // 获取服务器配置
+    // let res = await $.get(cfg.url + $.configs.paths.config, {
+    //     "Juew-Web-Protocol": window.location.protocol,
+    //     "Juew-Web-Host": window.location.host,
+    //     "Juew-Server-Host": cfg.host,
+    //     "Juew-Server-Url": cfg.url,
+    // });
+    // 启动登录界面
+    $.start("login/startup.js");
 });
