@@ -11,6 +11,8 @@
             :disabled="false"
             :clearable="true"
             prefix-icon="User"
+            ref="inputUser"
+            @keyup.enter="onPassword()"
           />
         </div>
         <div class="line">
@@ -21,11 +23,15 @@
             :clearable="true"
             :show-password="true"
             prefix-icon="Lock"
+            ref="inputPassword"
+            @keyup.enter="onLogin()"
           />
         </div>
         <div class="line">
           <div class="left link"><el-link icon="Key" type="info">忘记密码</el-link></div>
-          <div class="right"><el-button type="success">登录</el-button></div>
+          <div class="right">
+            <el-button type="success" v-on:click="onLogin">登录</el-button>
+          </div>
           <div class="clear"></div>
         </div>
       </div>
@@ -34,6 +40,8 @@
 </template>
 
 <script>
+import md5 from "js-md5";
+
 export default {
   name: "LoginPage",
   data() {
@@ -44,6 +52,29 @@ export default {
         backgroundImage: "url(" + require("../../public/background.jpg") + ")",
       },
     };
+  },
+  methods: {
+    onPassword() {
+      this.$refs.inputPassword.focus();
+    },
+    async onLogin() {
+      let jues = this.$jues;
+      let result = await jues.post("/app/base/User/Login", {
+        userName: this.userName,
+        password: md5("user=" + this.userName + ";pwd=" + this.userPwd + ";"),
+      });
+      if (result.success) {
+        let data = result.data;
+        let expiresTime = new Date(data.Expires);
+        let updateTime = new Date(data.Update);
+        jues.Jwt.update(data.Token, expiresTime, updateTime);
+        location.reload(true);
+      }
+    },
+  },
+  mounted() {
+    //console.log(this.$refs);
+    this.$refs.inputUser.focus();
   },
 };
 </script>
