@@ -11,12 +11,15 @@
   <HelloWorld msg="Welcome to Your Vue.js App" /> -->
   <Main v-if="isLogin" />
   <Login v-else />
+  <!-- <MessageBox /> -->
 </template>
 
 <script>
 import Login from "./pages/Login.vue";
 import Main from "./pages/Main.vue";
+//import MessageBox from "./pages/MessageBox.vue";
 import { ref } from "vue";
+import { ElLoading } from "element-plus";
 //import HelloWorld from "./components/HelloWorld.vue";
 
 // 更新令牌
@@ -39,6 +42,7 @@ export default {
     //HelloWorld,
     Login,
     Main,
+    //MessageBox,
   },
   setup(props) {},
   data() {
@@ -47,10 +51,49 @@ export default {
     };
   },
   async mounted() {
+    let that = this;
     let jues = this.$jues;
+    let serviceOption = {
+      fullscreen: true,
+      background: "rgba(0,0,0,0.2)",
+    };
+    // 注册Api加载事件
+    jues.onLoad((opt) => {
+      let loadingInstance = ElLoading.service(serviceOption);
+    });
+    // 注册Api失败事件
+    jues.onFail((result) => {
+      let loadingInstance = ElLoading.service(serviceOption);
+      that.$nextTick(() => {
+        // 以服务的方式调用的 Loading 需要异步关闭
+        loadingInstance.close();
+      });
+      this.$notify({
+        message: result.message,
+        type: "warning",
+        showClose: true,
+      });
+    });
+    // 注册Api异常事件
+    jues.onError((resp) => {
+      let loadingInstance = ElLoading.service(serviceOption);
+      that.$nextTick(() => {
+        // 以服务的方式调用的 Loading 需要异步关闭
+        loadingInstance.close();
+      });
+      this.$notify({
+        message: "Status " + resp.status,
+        type: "error",
+        showClose: true,
+      });
+    });
     // 注册Api成功事件
     jues.onSuccess((resp) => {
-      console.log("onSuccess");
+      let loadingInstance = ElLoading.service(serviceOption);
+      that.$nextTick(() => {
+        // 以服务的方式调用的 Loading 需要异步关闭
+        loadingInstance.close();
+      });
       updateToken(jues);
     });
     // 获取Jwt信息
@@ -94,5 +137,6 @@ body {
   height: 100%;
   padding: 0px;
   margin: 0px;
+  position: relative;
 }
 </style>

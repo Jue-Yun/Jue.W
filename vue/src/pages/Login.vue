@@ -1,38 +1,42 @@
 <template>
   <div class="login" :style="backgroundStyle">
-    <div class="box-bg"></div>
-    <div class="box">
-      <div class="logo"><img src="logo_1800.png" alt="" /></div>
-      <div class="form">
-        <div class="line">
-          <el-input
-            v-model="userName"
-            placeholder="用户名"
-            :disabled="false"
-            :clearable="true"
-            prefix-icon="User"
-            ref="inputUser"
-            @keyup.enter="onPassword()"
-          />
-        </div>
-        <div class="line">
-          <el-input
-            v-model="userPwd"
-            placeholder="密码"
-            :disabled="false"
-            :clearable="true"
-            :show-password="true"
-            prefix-icon="Lock"
-            ref="inputPassword"
-            @keyup.enter="onLogin()"
-          />
-        </div>
-        <div class="line">
-          <div class="left link"><el-link icon="Key" type="info">忘记密码</el-link></div>
-          <div class="right">
-            <el-button type="success" v-on:click="onLogin">登录</el-button>
+    <div class="area">
+      <div class="box-bg"></div>
+      <div class="box">
+        <div class="logo"><img src="logo_1800.png" alt="" /></div>
+        <div class="form">
+          <div class="line">
+            <el-input
+              v-model="userName"
+              placeholder="用户名"
+              :disabled="false"
+              :clearable="true"
+              prefix-icon="User"
+              ref="inputUser"
+              @keyup.enter="onPassword()"
+            />
           </div>
-          <div class="clear"></div>
+          <div class="line">
+            <el-input
+              v-model="userPwd"
+              placeholder="密码"
+              :disabled="false"
+              :clearable="true"
+              :show-password="true"
+              prefix-icon="Lock"
+              ref="inputPassword"
+              @keyup.enter="onLogin()"
+            />
+          </div>
+          <div class="line">
+            <div class="left link">
+              <el-link icon="Key" type="info" @click="onForgot">忘记密码</el-link>
+            </div>
+            <div class="right">
+              <el-button type="success" v-on:click="onLogin">登录</el-button>
+            </div>
+            <div class="clear"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -41,6 +45,9 @@
 
 <script>
 import md5 from "js-md5";
+
+// 是否忙碌
+let isBusy = false;
 
 export default {
   name: "LoginPage",
@@ -54,10 +61,14 @@ export default {
     };
   },
   methods: {
+    // 跳到密码
     onPassword() {
       this.$refs.inputPassword.focus();
     },
+    // 登录
     async onLogin() {
+      if (isBusy) return;
+      isBusy = true;
       let jues = this.$jues;
       let result = await jues.post("/app/base/User/Login", {
         userName: this.userName,
@@ -70,6 +81,18 @@ export default {
         jues.Jwt.update(data.Token, expiresTime, updateTime);
         location.reload(true);
       }
+      isBusy = false;
+    },
+    // 忘记密码
+    onForgot() {
+      this.$msgbox({
+        title: "忘记密码",
+        message: "请联系管理员重置密码",
+        type: "info",
+        showClose: true,
+        showConfirmButton: true,
+        callback: (action) => {},
+      });
     },
   },
   mounted() {
@@ -83,9 +106,14 @@ export default {
 .login {
   width: 100%;
   height: 100%;
-  position: relative;
   background-position: center center;
   background-repeat: no-repeat;
+}
+.login .area {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 .login .box {
   position: absolute;

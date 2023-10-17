@@ -8,6 +8,7 @@ const EVENT_LOAD = "Load";
 const EVENT_SUCCESS = "Success";
 const EVENT_FAIL = "Fail";
 const EVENT_ERROR = "Error";
+const EVENT_MESSAGE = "Message";
 
 /**
  * Jues插件
@@ -80,6 +81,13 @@ class Jues {
         this.on(EVENT_ERROR, fn);
     }
     /**
+     * 绑定消息事件
+     * @param {void} fn 
+     */
+    onMessage(fn) {
+        this.on(EVENT_MESSAGE, fn);
+    }
+    /**
      * 触发事件
      * @param {String} evt 
      * @param {any} arg 
@@ -96,6 +104,15 @@ class Jues {
         }
         // 单次执行模式下，清除所有绑定事件
         if (once) that.__handles[evt] = [];
+    }
+    /**
+     * 触发消息事件
+     * @param {String} evt 
+     * @param {any} arg 
+     * @param {Boolean} once 
+     */
+    raiseMessage(arg) {
+        this.raise(EVENT_MESSAGE, arg);
     }
     /**
      * 获取API结果
@@ -120,19 +137,19 @@ class Jues {
         if (!res.success) {
             // 触发失败事件
             if (typeof (opt) === "undefined") {
-                this.raise(EVENT_FAIL, response);
+                this.raise(EVENT_FAIL, res);
             } else {
-                opt.onFail(response);
-                if (!opt.IsSuppressEvent) this.raise(EVENT_FAIL, response);
+                opt.onFail(res);
+                if (!opt.IsSuppressEvent) this.raise(EVENT_FAIL, res);
             }
             return res;
         }
         // 触发失败事件
         if (typeof (opt) === "undefined") {
-            this.raise(EVENT_SUCCESS, response);
+            this.raise(EVENT_SUCCESS, res);
         } else {
-            opt.onSuccess(response);
-            if (!opt.IsSuppressEvent) this.raise(EVENT_SUCCESS, response);
+            opt.onSuccess(res);
+            if (!opt.IsSuppressEvent) this.raise(EVENT_SUCCESS, res);
         }
         return res;
     }
