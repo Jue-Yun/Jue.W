@@ -10,8 +10,20 @@
           type="danger"
           @click="onExit"
         ></el-button>
-        <el-button icon="Warning" class="button" circle type="info"></el-button>
-        <el-button icon="Setting" class="button" circle type="info"></el-button>
+        <el-button
+          icon="Warning"
+          class="button"
+          circle
+          type="info"
+          @click="onAboutCreateOrShow"
+        ></el-button>
+        <el-button
+          icon="Setting"
+          class="button"
+          circle
+          type="info"
+          @click="onSettingCreateOrShow"
+        ></el-button>
       </div>
     </el-header>
     <el-container class="main-container">
@@ -40,12 +52,19 @@
         </ul>
       </el-aside>
       <el-main class="main-area">
-        <el-tabs v-model="page">
+        <el-tabs v-model="activePage" @edit="onTabEdit">
           <el-tab-pane label="概览" name="home" class="pane">
             <Overview />
           </el-tab-pane>
-          <el-tab-pane label="2页" name="home2" closable="true" class="pane">
-            <div>这是2面</div>
+          <el-tab-pane
+            v-for="pg in pages"
+            :key="pg.name"
+            :label="pg.label"
+            :name="pg.name"
+            closable="true"
+            class="pane"
+          >
+            <component :is="pg.component"></component>
           </el-tab-pane>
         </el-tabs>
       </el-main>
@@ -53,27 +72,65 @@
   </el-container>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue";
 import Overview from "../components/Overview.vue";
+import About from "../components/About.vue";
+import Setting from "../components/Setting.vue";
 
-export default {
-  name: "MainPage",
-  components: {
-    Overview,
-  },
-  data() {
-    return {
-      page: "home",
-    };
-  },
-  methods: {
-    // 退出登录
-    onExit() {
-      let jues = this.$jues;
-      jues.Jwt.clear();
-      location.reload(true);
-    },
-  },
+let pageIndex = 0;
+
+const activePage = ref("home");
+const pages = ref([]);
+
+// 退出登录
+const onExit = () => {
+  let jues = this.$jues;
+  jues.Jwt.clear();
+  location.reload(true);
+};
+
+// 标签编辑
+const onTabEdit = (targetName, action) => {
+  if (action === "remove") {
+    const tabs = pages.value;
+    let activeName = activePage.value;
+    if (activeName === targetName) {
+      tabs.forEach((tab, index) => {
+        if (tab.name === targetName) {
+          const nextTab = tabs[index + 1] || tabs[index - 1];
+          if (nextTab) {
+            activeName = nextTab.name;
+          }
+        }
+      });
+    }
+    activePage.value = activeName;
+    pages.value = tabs.filter((tab) => tab.name !== targetName);
+  }
+};
+
+// 创建或显示标签页
+const onCreateOrShowSingleTab = (name, label, component) => {
+  const tabs = pages.value;
+  const tabFound = tabs.filter((tab) => tab.name === name)[0];
+  if (typeof tabFound !== "undefined") {
+    activePage.value = name;
+    return;
+  }
+  tabs.push({ name: name, label: label, component: component });
+  pages.value = tabs;
+  activePage.value = name;
+};
+
+// 显示关于
+const onAboutCreateOrShow = () => {
+  onCreateOrShowSingleTab("about", "关于", About);
+};
+
+// 显示关于
+const onSettingCreateOrShow = () => {
+  onCreateOrShowSingleTab("setting", "设置", Setting);
 };
 </script>
 
@@ -154,6 +211,9 @@ export default {
 }
 .main-area {
   padding: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 .main-area .pane {
   padding: 0px 5px;

@@ -39,7 +39,9 @@
       "parser": "@babel/eslint-parser"
     },
     "rules": {
-      "no-unused-vars": "off"
+      "vue/no-unused-components": "off",
+      "no-unused-vars": "off",
+      "vue/multi-word-component-names": "off"
     }
   },
   "browserslist": [

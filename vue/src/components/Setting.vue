@@ -1,11 +1,14 @@
 <template>
-  <div class="overview"><img src="world.svg" alt="" /></div>
+  <div class="about">
+    <div>设置</div>
+    <img src="world.svg" alt="" />
+  </div>
   <!-- <div style="color: #0094ff">决云·致力于更高效的管理</div> -->
 </template>
 
 <script>
 export default {
-  name: "OverviewPage",
+  name: "AboutPage",
   props: {
     msg: String,
   },
@@ -13,14 +16,14 @@ export default {
 </script>
 
 <style scoped>
-.overview {
+.about {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
   background: #f0f0f0;
 }
-.overview img {
+.about img {
   margin-top: 5%;
   height: 60%;
 }

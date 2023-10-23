@@ -1,5 +1,9 @@
+:root {
+    --el-border-color-light: #d0d0d0 !important;
+}
+
 .el-tabs__header {
-    background: #ebebeb;
+    background: #e0e0e0;
     margin: 0px !important;
 }
 
@@ -9,4 +13,23 @@
 
 .el-header {
     padding: 0px !important;
+}
+
+.el-tabs--top {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.el-tabs__content {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.el-tab-pane {
+    padding: 0px !important;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
