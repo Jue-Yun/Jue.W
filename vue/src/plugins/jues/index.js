@@ -2,6 +2,7 @@ import JuesApiOption from './JuesApiOption';
 import JuesApiResult from './JuesApiResult';
 import JuesConfigure from './JuesConfigure'
 import JuesJwt from './JuesJwt';
+import { getCurrentInstance } from "vue";
 
 // 定义常量
 const EVENT_LOAD = "Load";
@@ -20,7 +21,7 @@ class Jues {
      */
     constructor(config) {
         if (typeof (config) === "undefined") config = new JuesConfigure();
-        console.log(config);
+        //console.log(config);
         this.Config = config
         this.Jwt = new JuesJwt(config);
         this.__handles = {};
@@ -252,6 +253,24 @@ let obj = {
      */
     install: function (app) {
         app.config.globalProperties.$jues = new Jues(new JuesConfigure());
+    },
+    /**
+     * 获取Global对象
+     */
+    getGlobal: () => {
+        // 获取全局组件
+        const instance = getCurrentInstance();
+        const global = instance?.appContext.config.globalProperties;
+        return global;
+    },
+    /**
+     * 获取当前Jues对象
+     */
+     getCurrent: () => {
+        // 获取全局组件
+        const instance = getCurrentInstance();
+        const global = instance?.appContext.config.globalProperties;
+        return global.$jues;
     }
 }
 

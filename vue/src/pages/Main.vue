@@ -35,20 +35,24 @@
               >功能列表</el-text
             >
           </li>
-          <li>
-            <el-icon color="#f0f0f0" class="icon"><Files /></el-icon>
-            <el-text tag="b" style="font-size: 14px; color: #f0f0f0; line-height: 18px"
-              >测试分类</el-text
-            >
-          </li>
-          <li class="item">
-            <a href="javascript:;">
-              <el-icon color="#f0f0f0" class="icon"><Document /></el-icon>
-              <el-text style="font-size: 14px; color: #f0f0f0; line-height: 18px"
-                >测试功能</el-text
+          <template v-for="menu in menus" :key="menu.id">
+            <li>
+              <el-icon color="#f0f0f0" class="icon"><Files /></el-icon>
+              <el-text
+                tag="b"
+                style="font-size: 14px; color: #f0f0f0; line-height: 18px"
+                >{{ menu.text }}</el-text
               >
-            </a>
-          </li>
+            </li>
+            <li class="item" v-for="item in menu.items" :key="item.id">
+              <a href="javascript:;" @click="onMenuClick(item)">
+                <el-icon color="#f0f0f0" class="icon"><Document /></el-icon>
+                <el-text style="font-size: 14px; color: #f0f0f0; line-height: 18px">{{
+                  item.text
+                }}</el-text>
+              </a>
+            </li>
+          </template>
         </ul>
       </el-aside>
       <el-main class="main-area">
@@ -64,7 +68,7 @@
             closable="true"
             class="pane"
           >
-            <component :is="pg.component"></component>
+            <component :is="pg.component" :args="pg.args"></component>
           </el-tab-pane>
         </el-tabs>
       </el-main>
@@ -73,19 +77,36 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, getCurrentInstance } from "vue";
 import Overview from "../components/Overview.vue";
 import About from "../components/About.vue";
 import Setting from "../components/Setting.vue";
+import TestDemo from "../components/TestDemo.vue";
+import Jues from "../plugins/jues";
+
+// 获取全局组件
+// const instance = getCurrentInstance();
+// const global = instance?.appContext.config.globalProperties;
+let jues = Jues.getCurrent();
+console.log(jues);
 
 let pageIndex = 0;
 
 const activePage = ref("home");
 const pages = ref([]);
+const menus = ref([
+  {
+    id: 1,
+    text: "分类01",
+    items: [
+      { id: 101, text: "测试功能0101", component: TestDemo },
+      { id: 102, text: "测试功能0102", component: TestDemo },
+    ],
+  },
+]);
 
 // 退出登录
 const onExit = () => {
-  let jues = this.$jues;
   jues.Jwt.clear();
   location.reload(true);
 };
@@ -110,17 +131,25 @@ const onTabEdit = (targetName, action) => {
   }
 };
 
+// 创建标签页
+const onCreateTab = (name, label, component, args) => {
+  const tabs = pages.value;
+  if (typeof args === "undefined") args = {};
+  tabs.push({ name: name, label: label, component: component, args: args });
+  pages.value = tabs;
+  activePage.value = name;
+};
+
 // 创建或显示标签页
-const onCreateOrShowSingleTab = (name, label, component) => {
+const onCreateOrShowSingleTab = (name, label, component, args) => {
   const tabs = pages.value;
   const tabFound = tabs.filter((tab) => tab.name === name)[0];
   if (typeof tabFound !== "undefined") {
     activePage.value = name;
     return;
   }
-  tabs.push({ name: name, label: label, component: component });
-  pages.value = tabs;
-  activePage.value = name;
+  // 创建标签页
+  onCreateTab(name, label, component, args);
 };
 
 // 显示关于
@@ -131,6 +160,12 @@ const onAboutCreateOrShow = () => {
 // 显示关于
 const onSettingCreateOrShow = () => {
   onCreateOrShowSingleTab("setting", "设置", Setting);
+};
+
+// 显示关于
+const onMenuClick = (menu) => {
+  pageIndex++;
+  onCreateTab("page_" + pageIndex, menu.text, menu.component, { text: menu.text });
 };
 </script>
 

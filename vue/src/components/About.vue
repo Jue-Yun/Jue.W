@@ -1,30 +1,61 @@
 <template>
   <div class="about">
-    <div>关于</div>
-    <img src="world.svg" alt="" />
+    <div class="area">
+      <h1>UI界面</h1>
+      <ul>
+        <li>名称: 浙江工量刃具交易中心公众号2.0后台管理界面</li>
+        <li>版本: 2.0.0</li>
+        <li>架构: Jues.W/Vue 3.0</li>
+      </ul>
+      <h1>API服务</h1>
+      <ul>
+        <li>名称: 浙江工量刃具交易中心公众号2.0后台接口服务</li>
+        <li>版本: 2.0.0</li>
+        <li>架构: Jues.S/.Net 6</li>
+      </ul>
+      <h1>技术支持</h1>
+      <ul>
+        <li>温岭联谊网络科技有限公司</li>
+        <li>微信: X715042</li>
+        <li>QQ: 2208899966</li>
+      </ul>
+    </div>
   </div>
-  <!-- <div style="color: #0094ff">决云·致力于更高效的管理</div> -->
 </template>
 
-<script>
-export default {
-  name: "AboutPage",
-  props: {
-    msg: String,
-  },
-};
+<script setup>
 </script>
 
 <style scoped>
 .about {
   width: 100%;
   height: 100%;
+  margin: 0px;
+  padding: ;
   overflow-x: hidden;
   overflow-y: auto;
   background: #f0f0f0;
 }
-.about img {
-  margin-top: 5%;
-  height: 60%;
+.about .area {
+  width: 100%;
+  padding: 30px 50px;
+  text-align: left;
+}
+.about h1 {
+  margin: 0px;
+  padding: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  border-bottom: 1px solid #c0c0c0;
+}
+.about ul {
+  padding: 0px 0px 20px;
+  margin: 0px;
+  width: 100%;
+}
+.about li {
+  list-style: none;
+  margin: 0px;
+  padding: 20px 20px 0px;
 }
 </style>

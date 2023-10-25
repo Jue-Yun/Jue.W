@@ -102,12 +102,12 @@ export default {
       jues.createApiOption((opt) => {
         opt.IsSuppressEvent = true;
         opt.onSuccess = function (resp) {
-          console.log("onSuccess");
+          //console.log("onSuccess");
           updateToken(jues);
         };
       })
     );
-    console.log(data);
+    //console.log(data);
     // 更新登录状态
     this.isLogin = data.success;
   },
