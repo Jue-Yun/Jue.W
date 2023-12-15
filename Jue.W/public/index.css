@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+}
+
+#app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    /* margin-top: 60px; */
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    position: relative;
+}
+
+/* 内容显示 */
+.content-view {
+    display: block;
+}
+
+i,
+s {
+    text-decoration: none;
+    font-style: normal;
+}
+
+:root {
+    --el-border-color-light: #d0d0d0 !important;
+}
+
+.el-tabs__header {
+    background: #e0e0e0;
+    margin: 0px !important;
+}
+
+.el-tabs__nav {
+    padding: 0px 20px;
+}
+
+.el-tabs--top {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.el-tabs__content {
+    width: 100%;
+    height: calc(100% - 40px);
+    overflow: hidden;
+}
+
+.el-tab-pane {
+    padding: 0px !important;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.el-upload-list {
+    margin: 0px !important;
+}
+
+.el-upload-list__item {
+    margin: 0px !important;
+}
+
+.el-upload--picture {
+    display: block !important;
+}
+
+.el-select,
+.el-button,
+.el-text {
+    vertical-align: top !important;
+}
